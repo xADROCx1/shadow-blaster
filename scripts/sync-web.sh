@@ -74,4 +74,7 @@ if '<script src="iosBridge.js"></script>' not in src:
 idx.write_text(src)
 PY
 
+# 3) Optimize iOS-bundled images (idempotent — skips already-small files)
+"$ROOT/scripts/optimize-ios-assets.sh"
+
 echo "✓ Web bundle synced. Re-run the app in Xcode to pick up changes."
