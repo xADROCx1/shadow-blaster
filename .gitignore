@@ -1,0 +1,40 @@
+# Xcode
+ios/build/
+ios/DerivedData/
+ios/**/xcuserdata/
+ios/**/*.xcuserstate
+ios/**/UserInterfaceState.xcuserstate
+ios/.swiftpm/
+ios/Package.resolved
+ios/ShadowBlaster.xcodeproj/project.xcworkspace/xcuserdata/
+ios/ShadowBlaster.xcodeproj/xcuserdata/
+
+# macOS
+.DS_Store
+**/.DS_Store
+
+# JetBrains / IntelliJ
+.idea/
+*.iml
+
+# Local config / secrets — DO NOT COMMIT API KEYS
+ios/ShadowBlaster/Secrets.swift
+.env
+.env.local
+
+# Build artefacts
+node_modules/
+output/playwright/
+*.ipa
+*.dSYM.zip
+*.xcarchive
+
+# Editor scratch
+.vscode/
+*.swp
+*.swo
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*

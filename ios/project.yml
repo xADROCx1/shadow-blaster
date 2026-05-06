@@ -1,0 +1,55 @@
+name: ShadowBlaster
+options:
+  bundleIdPrefix: com.shadowblaster
+  deploymentTarget:
+    iOS: "16.0"
+  createIntermediateGroups: true
+  generateEmptyDirectories: true
+
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+    IPHONEOS_DEPLOYMENT_TARGET: "16.0"
+    TARGETED_DEVICE_FAMILY: "1,2"
+    MARKETING_VERSION: "1.0.0"
+    CURRENT_PROJECT_VERSION: "1"
+    ENABLE_USER_SCRIPT_SANDBOXING: "YES"
+
+packages:
+  RevenueCat:
+    url: https://github.com/RevenueCat/purchases-ios
+    from: 5.0.0
+
+targets:
+  ShadowBlaster:
+    type: application
+    platform: iOS
+    deploymentTarget: "16.0"
+    sources:
+      - path: ShadowBlaster/ShadowBlasterApp.swift
+      - path: ShadowBlaster/ContentView.swift
+      - path: ShadowBlaster/GameWebView.swift
+      - path: ShadowBlaster/SubscriptionManager.swift
+      - path: ShadowBlaster/PaywallView.swift
+      - path: ShadowBlaster/Assets.xcassets
+      - path: ShadowBlaster/Preview Content
+      - path: ShadowBlaster/WebContent
+        type: folder
+        buildPhase: resources
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.shadowblaster.app
+        PRODUCT_NAME: ShadowBlaster
+        INFOPLIST_FILE: ShadowBlaster/Info.plist
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+        ENABLE_PREVIEWS: "YES"
+        SUPPORTS_MACCATALYST: "NO"
+        DEVELOPMENT_ASSET_PATHS: "\"ShadowBlaster/Preview Content\""
+        CODE_SIGN_STYLE: Automatic
+        GENERATE_INFOPLIST_FILE: "NO"
+        CURRENT_PROJECT_VERSION: "1"
+        MARKETING_VERSION: "1.0.0"
+    dependencies:
+      - package: RevenueCat
+        product: RevenueCat

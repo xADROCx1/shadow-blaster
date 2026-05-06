@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="format-detection" content="telephone=no">
+    <title>Shadow Blaster</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <main class="game-shell menu-open">
+      <canvas id="game" aria-label="Shadow Blaster arcade space shooter"></canvas>
+      <div class="hud">
+        <div>
+          <span class="label">Score</span>
+          <strong id="score">0</strong>
+        </div>
+        <div>
+          <span class="label">Best</span>
+          <strong id="best">0</strong>
+        </div>
+        <div>
+          <span class="label">Wave</span>
+          <strong id="wave">1</strong>
+        </div>
+        <div class="credits-hud">
+          <span class="label">Credits</span>
+          <strong id="credits">0</strong>
+        </div>
+      </div>
+      <div class="game-actions" id="gameActions">
+        <button id="pauseButton" type="button" aria-label="Pause">Ⅱ</button>
+        <button id="menuButton" class="secondary" type="button" aria-label="Back to menu">←</button>
+      </div>
+      <section class="overlay" id="overlay">
+        <h1>Shadow Blaster</h1>
+        <p>Right thumb steers. Left side shoots. Bosses hit every third wave.</p>
+        <div class="menu-actions">
+          <button id="startButton" type="button">Start Run</button>
+          <button id="warpButton" class="secondary" type="button">Warp Gate</button>
+          <button id="dailyButton" class="secondary" type="button">Daily Challenge</button>
+          <button id="garageButton" class="secondary" type="button">Ship Build</button>
+          <button id="codexButton" class="secondary" type="button">Enemy Codex</button>
+          <button id="fameButton" class="secondary" type="button">Hall of Fame</button>
+          <button id="missionsButton" class="secondary" type="button">Missions</button>
+          <button id="settingsButton" class="secondary" type="button">Settings</button>
+        </div>
+        <section class="garage hidden" id="garage">
+          <div class="garage-head">
+            <span>Ship Build</span>
+            <strong id="garageCredits">0 cr</strong>
+          </div>
+          <div class="ship-preview">
+            <canvas id="shipPreview" width="180" height="132" aria-label="Current upgraded ship preview"></canvas>
+          </div>
+          <div class="upgrade-row" data-upgrade="booster">
+            <div>
+              <strong>Boosters</strong>
+              <span id="boosterMeta">Tier 1 - stock drift</span>
+            </div>
+            <button id="boosterBuy" type="button">Buy</button>
+          </div>
+          <div class="part-strip" id="boosterStrip" aria-label="Booster tier parts"></div>
+          <div class="upgrade-row" data-upgrade="laser">
+            <div>
+              <strong>Lasers</strong>
+              <span id="laserMeta">Tier 1 - cyan beam</span>
+            </div>
+            <button id="laserBuy" type="button">Buy</button>
+          </div>
+          <div class="part-strip" id="laserStrip" aria-label="Laser blaster tier parts"></div>
+          <div class="upgrade-row" data-upgrade="shield">
+            <div>
+              <strong>Shields</strong>
+              <span id="shieldMeta">Tier 1 - +0 HP</span>
+            </div>
+            <button id="shieldBuy" type="button">Buy</button>
+          </div>
+          <div class="garage-head compact-head">
+            <span>Weapon Mods</span>
+            <strong id="modMeta">0 equipped</strong>
+          </div>
+          <div class="mod-grid" id="modGrid"></div>
+          <div class="garage-head compact-head">
+            <span>Ship Skins</span>
+            <strong id="skinMeta">Default</strong>
+          </div>
+          <div class="skin-grid" id="skinGrid"></div>
+        </section>
+        <section class="hall hidden" id="codex">
+          <div class="garage-head">
+            <span>Enemy Codex</span>
+            <strong id="codexMeta">0 seen</strong>
+          </div>
+          <div id="codexList" class="codex-list"></div>
+        </section>
+        <section class="hall hidden" id="daily">
+          <div class="garage-head">
+            <span>Daily Challenge</span>
+            <strong id="dailyMeta">Today</strong>
+          </div>
+          <div id="dailyInfo" class="settings-list"></div>
+        </section>
+        <section class="hall hidden" id="warp">
+          <div class="garage-head">
+            <span>Warp Gate</span>
+            <strong id="warpMeta">5 Nebulas</strong>
+          </div>
+          <div id="warpList" class="warp-map"></div>
+          <div class="warp-details">
+            <div>
+              <strong id="warpSelectedName">Shadow Rift</strong>
+              <span id="warpSelectedInfo">Select a nebula destination.</span>
+            </div>
+            <button id="warpStartButton" type="button">Start</button>
+          </div>
+        </section>
+        <section class="hall hidden" id="hall">
+          <div class="garage-head">
+            <span>Hall of Fame</span>
+            <strong>Top 25</strong>
+          </div>
+          <ol id="fameList" class="fame-list"></ol>
+        </section>
+        <section class="hall hidden" id="missions">
+          <div class="garage-head">
+            <span>Missions</span>
+            <strong id="missionCredits">0 cr</strong>
+          </div>
+          <div id="missionList" class="settings-list"></div>
+        </section>
+        <section class="hall hidden" id="summary">
+          <div class="garage-head">
+            <span>Run Summary</span>
+            <strong id="summaryScore">0</strong>
+          </div>
+          <div id="summaryStats" class="settings-list"></div>
+        </section>
+        <section class="hall hidden" id="settings">
+          <div class="garage-head">
+            <span>Settings</span>
+            <strong>Game</strong>
+          </div>
+          <div class="settings-list">
+            <label><span>Music</span><input id="musicToggle" type="checkbox"></label>
+            <label><span>SFX</span><input id="sfxToggle" type="checkbox"></label>
+            <label><span>Screen Shake</span><input id="shakeToggle" type="checkbox"></label>
+            <label><span>Particles</span><input id="particlesToggle" type="checkbox"></label>
+            <label><span>Auto Fire</span><input id="autoFireToggle" type="checkbox"></label>
+            <label><span>Touch Sensitivity</span><input id="touchSensitivity" type="range" min="8" max="24" value="12"></label>
+          </div>
+        </section>
+      </section>
+      <div class="touch-zones" aria-hidden="true">
+        <div class="touch-zone shoot-zone">SHOOT</div>
+        <div class="touch-zone steer-zone">STEER</div>
+      </div>
+    </main>
+    <script src="game.js"></script>
+    <script src="iosBridge.js"></script>
+  </body>
+</html>
