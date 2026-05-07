@@ -10,7 +10,7 @@ final class SubscriptionManager: ObservableObject {
     // CONFIG — replace these with values from your RevenueCat dashboard.
     // The launch checklist (docs/REVENUECAT_SETUP.md) walks through it.
     // ─────────────────────────────────────────────────────────────
-    static let revenueCatAPIKey = "appl_REPLACE_WITH_YOUR_REVENUECAT_PUBLIC_KEY"
+    static let revenueCatAPIKey = "appl_wYJDZgOIFKwYQnMqgSXAfHycRUf"
     static let entitlementID = "premium"
     // ─────────────────────────────────────────────────────────────
 
