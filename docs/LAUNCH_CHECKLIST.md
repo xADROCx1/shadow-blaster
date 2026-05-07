@@ -67,14 +67,11 @@ for the browser steps, Terminal for the shell steps, and Xcode for the build ste
 6. **App Store Localizations → +** → English (U.S.)
    - Display Name: `Premium`
    - Description: `Unlimited waves, all skins, mods, daily challenges, warp gate destinations, and the Hall of Fame leaderboard. Auto-renewing monthly.`
-7. **Introductory Offer** → **+**
-   - Type: **Free Trial**
-   - Duration: **7 Days**
-   - Eligible: New Subscribers
-   - Countries: All
-8. **Review Information** → upload a screenshot of the paywall (you'll have this
+7. **Review Information** → upload a screenshot of the paywall (you'll have this
    after Phase 5 simulator run; for now use any 1024×1024 PNG to unblock)
-9. Click **Save**
+8. Click **Save**
+
+> No introductory offer / free trial. Pricing is straight $0.99/mo from day one.
 
 ### 2c. Pricing & availability for the app itself
 
@@ -153,7 +150,7 @@ cd ios && open ShadowBlaster.xcodeproj
    - Settings → App Store → Sandbox Account → sign in with the tester
 4. Open Shadow Blaster (via Xcode → Run on connected iPhone)
 5. Trigger paywall (play to wave 11)
-6. Tap **Start Free Trial**
+6. Tap **Subscribe — $0.99**
 7. Confirm purchase, sandbox shouldn't charge
 8. Verify: gameplay continues past wave 10, paywall doesn't reappear
 9. Kill app, relaunch — verify entitlement persists
@@ -207,7 +204,7 @@ cd ios && open ShadowBlaster.xcodeproj
 3. **App Review Information**
    - Demo account: not needed (free first 10 waves)
    - Notes: _"Free play through wave 10. Wave 11+ requires the auto-renewing
-     monthly subscription with a 7-day free trial. Subscribed users get
+     monthly subscription at $0.99 USD. Subscribed users get
      unlimited waves and access to Warp Gate, Daily Challenge, and full
      ship customization."_
 4. **Screenshots** — required: 6.7" iPhone Pro Max (1290×2796).
@@ -235,7 +232,7 @@ decide the go-live moment, or **Automatic** to ship when approved.
 | 5.1.1 — Privacy policy missing | ⚠️ You must host one; placeholder URL in `PaywallView.swift` needs replacing |
 | 4.0 — Spam / minimum functionality | ✅ Game has 10 free waves, multiple modes, leaderboards |
 | 2.1 — Crashes | ✅ Validated locally; sandbox-test before submission |
-| Free trial unclear | ✅ Paywall CTA shows "X days free, then $0.99/mo" when intro offer is active |
+| Pricing unclear | ✅ Paywall CTA shows "Subscribe — $0.99" + "auto-renews monthly • cancel anytime" |
 
 ---
 

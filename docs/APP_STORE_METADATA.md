@@ -16,7 +16,7 @@ Drop these into the App Store Connect form. Tweak as you like.
 ## Pricing
 
 - **Price:** Free
-- **In-App Purchase:** Premium Monthly — $0.99 / month with 7-day free trial
+- **In-App Purchase:** Premium Monthly — $0.99 / month (no free trial)
 
 ## Description (under 4000 chars)
 
@@ -38,8 +38,7 @@ upgrade, and warp into deeper nebulas.
 • Daily Challenge with bonus rewards
 • Hall of Fame leaderboard, Top 25
 • All weapon mods, all ship skins
-• 7-day free trial, then $0.99/month
-• Cancel anytime in your Apple ID subscription settings
+• $0.99 / month — cancel anytime in your Apple ID subscription settings
 
 — FEATURES —
 • 60fps arcade combat
@@ -50,8 +49,7 @@ upgrade, and warp into deeper nebulas.
 
 Subscriptions auto-renew monthly until canceled at least 24 hours before
 the end of the current period. Manage and cancel in your Apple ID account
-settings. Free trial converts to paid subscription if not canceled at least
-24 hours before trial ends.
+settings.
 
 Privacy: https://shadowblaster.app/privacy
 Terms (Apple EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
@@ -60,8 +58,7 @@ Terms (Apple EULA): https://www.apple.com/legal/internet-services/itunes/dev/std
 ## Promotional Text (under 170 chars, can be edited without resubmission)
 
 ```
-Now with 7-day free trial. Unlimited waves, all skins, all mods, daily
-challenge, and Top 25 leaderboard for $0.99/mo.
+10 waves free. Then $0.99/mo unlocks unlimited play, daily challenges, boss fights, and the Top 25 leaderboard. No ads. No loot boxes.
 ```
 
 ## Keywords (under 100 chars total, comma-separated, no spaces after commas)
@@ -112,7 +109,7 @@ Capture pipeline:
 
 ```
 Free play through Wave 10. Starting Wave 11 requires the auto-renewing
-monthly subscription, which includes a 7-day free trial.
+monthly subscription at $0.99 USD/month.
 
 Premium unlocks:
 - Unlimited waves and bosses

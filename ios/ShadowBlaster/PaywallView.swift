@@ -178,34 +178,12 @@ private struct PaywallCTA: View {
         }
     }
 
-    private var introOffer: StoreProductDiscount? {
-        package.storeProduct.introductoryDiscount
-    }
-
     private var ctaTopLine: String {
-        if introOffer != nil {
-            return "Start Free Trial"
-        }
-        return "Subscribe — \(package.localizedPriceString)"
+        "Subscribe — \(package.localizedPriceString)"
     }
 
     private var ctaSubLine: String {
-        if let intro = introOffer {
-            let trialLength = "\(intro.subscriptionPeriod.value) \(unit(intro.subscriptionPeriod.unit, value: intro.subscriptionPeriod.value))"
-            return "\(trialLength) free, then \(package.localizedPriceString)/mo • cancel anytime"
-        }
-        return "auto-renews monthly • cancel anytime"
-    }
-
-    private func unit(_ u: SubscriptionPeriod.Unit, value: Int) -> String {
-        let plural = value != 1
-        switch u {
-        case .day: return plural ? "days" : "day"
-        case .week: return plural ? "weeks" : "week"
-        case .month: return plural ? "months" : "month"
-        case .year: return plural ? "years" : "year"
-        @unknown default: return "period"
-        }
+        "auto-renews monthly • cancel anytime"
     }
 }
 
