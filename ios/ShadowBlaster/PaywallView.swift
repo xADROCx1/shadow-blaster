@@ -97,7 +97,7 @@ struct PaywallView: View {
                         Link("Terms",
                              destination: URL(string: "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/")!)
                         Link("Privacy",
-                             destination: URL(string: "https://shadowblaster.app/privacy")!)
+                             destination: URL(string: "https://xadrocx1.github.io/shadow-blaster/privacy-policy.html")!)
                     }
                     .font(.caption2)
                     .foregroundStyle(.white.opacity(0.55))
