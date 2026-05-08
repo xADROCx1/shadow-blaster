@@ -9,7 +9,7 @@
   var isIOSHost = !!(window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.shadowBlaster);
   if (!isIOSHost) return;
 
-  var FREE_WAVE_LIMIT = 10;
+  var FREE_WAVE_LIMIT = 3;
   var isSubscribed = false;
   var lastWaveSeen = 1;
   var paywallShown = false;
@@ -28,6 +28,9 @@
     if (isSubscribed) {
       paywallShown = false;
     }
+    try {
+      window.dispatchEvent(new CustomEvent('shadowBlaster:subscriptionChanged', { detail: { isSubscribed: isSubscribed } }));
+    } catch (e) {}
   };
 
   window.__SBPaywallDismissed = function (purchased) {

@@ -816,6 +816,16 @@ function nextCost(tier) {
   return tier >= 5 ? null : UPGRADE_COSTS[tier];
 }
 
+function isPremium() {
+  return !window.shadowBlasterIOS || !!window.shadowBlasterIOS.isSubscribed;
+}
+
+function requirePremium() {
+  if (isPremium()) return true;
+  if (window.shadowBlasterIOS) window.shadowBlasterIOS.triggerPaywall();
+  return false;
+}
+
 function renderGarage() {
   if (!garageCreditsEl) return;
   garageCreditsEl.textContent = `${credits} cr`;
@@ -832,7 +842,8 @@ function renderGarage() {
 
 function renderMods() {
   if (!modGrid) return;
-  const renderKey = `${credits}-${equippedMod}-${ownedMods.join("|")}`;
+  const premium = isPremium();
+  const renderKey = `${credits}-${equippedMod}-${ownedMods.join("|")}-${premium ? 1 : 0}`;
   if (modGrid.dataset.rendered === renderKey) return;
   modGrid.dataset.rendered = renderKey;
   modMeta.textContent = equippedMod ? "1 equipped" : "None";
@@ -850,8 +861,8 @@ function renderMods() {
     text.innerHTML = `<strong>${mod.name}</strong><span>${mod.text}</span>`;
     const button = document.createElement("button");
     button.type = "button";
-    button.textContent = owned ? (equipped ? "On" : "Equip") : `${mod.cost} cr`;
-    button.disabled = !owned && credits < mod.cost;
+    button.textContent = owned ? (equipped ? "On" : "Equip") : (premium ? `${mod.cost} cr` : "Premium");
+    button.disabled = !owned && premium && credits < mod.cost;
     button.addEventListener("click", () => {
       if (!owned) buyMod(mod.id);
       else equipMod(equipped ? "" : mod.id);
@@ -863,7 +874,9 @@ function renderMods() {
 
 function buyMod(id) {
   const mod = WEAPON_MODS.find((item) => item.id === id);
-  if (!mod || ownedMods.includes(id) || credits < mod.cost) return;
+  if (!mod || ownedMods.includes(id)) return;
+  if (!requirePremium()) return;
+  if (credits < mod.cost) return;
   credits -= mod.cost;
   ownedMods.push(id);
   equippedMod = id;
@@ -880,7 +893,8 @@ function equipMod(id) {
 
 function renderSkins() {
   if (!skinGrid) return;
-  const renderKey = `${credits}-${equippedSkin}-${ownedSkins.join("|")}`;
+  const premium = isPremium();
+  const renderKey = `${credits}-${equippedSkin}-${ownedSkins.join("|")}-${premium ? 1 : 0}`;
   if (skinGrid.dataset.rendered === renderKey) return;
   skinGrid.dataset.rendered = renderKey;
   const skin = getEquippedSkin();
@@ -899,8 +913,8 @@ function renderSkins() {
     text.innerHTML = `<strong>${item.name}</strong><span>${owned ? "Unlocked paint kit" : "Cosmetic hull repaint"}</span>`;
     const button = document.createElement("button");
     button.type = "button";
-    button.textContent = owned ? (equipped ? "On" : "Equip") : `${item.cost} cr`;
-    button.disabled = !owned && credits < item.cost;
+    button.textContent = owned ? (equipped ? "On" : "Equip") : (premium ? `${item.cost} cr` : "Premium");
+    button.disabled = !owned && premium && credits < item.cost;
     button.addEventListener("click", () => {
       if (!owned) buySkin(item.id);
       else equipSkin(item.id);
@@ -912,7 +926,9 @@ function renderSkins() {
 
 function buySkin(id) {
   const skin = SHIP_SKINS.find((item) => item.id === id);
-  if (!skin || ownedSkins.includes(id) || credits < skin.cost) return;
+  if (!skin || ownedSkins.includes(id)) return;
+  if (!requirePremium()) return;
+  if (credits < skin.cost) return;
   credits -= skin.cost;
   ownedSkins.push(id);
   equippedSkin = id;
@@ -945,6 +961,9 @@ function renderUpgrade(key, meta, button, tiers) {
   if (cost === null) {
     button.textContent = "Max";
     button.disabled = true;
+  } else if (!isPremium()) {
+    button.textContent = "Premium";
+    button.disabled = false;
   } else {
     button.textContent = `${cost} cr`;
     button.disabled = credits < cost;
@@ -953,7 +972,9 @@ function renderUpgrade(key, meta, button, tiers) {
 
 function buyUpgrade(key) {
   const cost = nextCost(upgrades[key]);
-  if (cost === null || credits < cost) return;
+  if (cost === null) return;
+  if (!requirePremium()) return;
+  if (credits < cost) return;
   credits -= cost;
   upgrades[key] += 1;
   equipped[key] = upgrades[key];
@@ -3400,4 +3421,5 @@ if (location.hash === "#codex") codexPanel.classList.remove("hidden");
 if (location.hash === "#daily") dailyPanel.classList.remove("hidden");
 if (location.hash === "#warp") warpPanel.classList.remove("hidden");
 renderHallOfFame();
+window.addEventListener("shadowBlaster:subscriptionChanged", () => updateHud());
 requestAnimationFrame(updateGame);
