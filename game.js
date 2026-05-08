@@ -3264,6 +3264,8 @@ function drawShockwaves() {
   ctx.restore();
 }
 
+const STEER_TOUCH_Y_OFFSET = 90;
+
 function onPointerDown(event) {
   const data = { x: event.clientX, y: event.clientY };
   pointers.set(event.pointerId, data);
@@ -3274,7 +3276,7 @@ function onPointerDown(event) {
   } else {
     player.steerPointer = event.pointerId;
     player.targetX = event.clientX;
-    player.targetY = event.clientY;
+    player.targetY = event.clientY - STEER_TOUCH_Y_OFFSET;
   }
 }
 
@@ -3283,7 +3285,7 @@ function onPointerMove(event) {
   pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
   if (player.steerPointer === event.pointerId) {
     player.targetX = event.clientX;
-    player.targetY = event.clientY;
+    player.targetY = event.clientY - STEER_TOUCH_Y_OFFSET;
   }
 }
 

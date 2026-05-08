@@ -232,14 +232,16 @@ canvas {
 button {
   min-width: 170px;
   min-height: 48px;
-  border: 3px solid var(--ink);
+  border: 3px solid var(--hot);
   border-radius: 0;
-  background: linear-gradient(180deg, #ff5f7e 0%, var(--hot) 56%, #b9153c 100%);
+  background: linear-gradient(180deg, #1a1030 0%, #0a0518 56%, #050210 100%);
   color: #fff;
-  box-shadow: 5px 5px 0 #000, 0 0 20px rgba(255, 54, 95, 0.2), inset 0 0 0 2px rgba(255, 255, 255, 0.16), inset 0 12px 18px rgba(255, 255, 255, 0.14);
+  box-shadow: 5px 5px 0 #000, 0 0 18px rgba(255, 54, 95, 0.55), inset 0 0 0 1px rgba(255, 54, 95, 0.35);
   cursor: pointer;
-  font: 700 16px/1 "Audiowide", "Share Tech Mono", monospace;
+  font: 700 17px/1 "Audiowide", "Share Tech Mono", monospace;
   text-transform: uppercase;
+  text-shadow: 0 2px 0 #000, 0 0 8px rgba(255, 54, 95, 0.55);
+  letter-spacing: 0.5px;
 }
 
 button:active {
@@ -256,8 +258,10 @@ button:active {
 }
 
 button.secondary {
-  background: linear-gradient(180deg, #b58cff 0%, var(--violet) 56%, #3e1f86 100%);
-  box-shadow: 5px 5px 0 #000, 0 0 24px rgba(143, 92, 255, 0.32), inset 0 0 0 2px rgba(255, 255, 255, 0.18), inset 0 12px 18px rgba(255, 255, 255, 0.14);
+  border-color: var(--cool);
+  background: linear-gradient(180deg, #0e1f3a 0%, #060d22 56%, #030615 100%);
+  box-shadow: 5px 5px 0 #000, 0 0 18px rgba(35, 216, 255, 0.55), inset 0 0 0 1px rgba(35, 216, 255, 0.35);
+  text-shadow: 0 2px 0 #000, 0 0 8px rgba(35, 216, 255, 0.55);
 }
 
 .garage,
