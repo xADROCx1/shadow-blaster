@@ -474,11 +474,15 @@ let dailyBest = JSON.parse(localStorage.getItem("shadowBlasterDailyBest") || "{}
 let dailyChallenge = false;
 let currentNebulaId = localStorage.getItem("shadowBlasterNebula") || "shadow-rift";
 let bankedThisRun = false;
+let runScoreBanked = 0; // credits already paid out for this run's score so far
 let ammoTimer = 0;
 let wave = 1;
 let waveTimer = 0;
 let waveBreakTimer = 0;
 let spawnTimer = 0;
+let formationTimer = 0;     // seconds until next formation cluster fires
+let formationsThisWave = 0; // tracks how many formations have spawned in the current wave
+const FORMATIONS_PER_WAVE = 3;
 let shootTimer = 0;
 let mutationTimer = 10;
 let mutation = "steady";
@@ -722,6 +726,8 @@ function resetGame() {
   waveTimer = 0;
   waveBreakTimer = 0;
   spawnTimer = 0.4;
+  formationsThisWave = 0;
+  formationTimer = 12; // first formation lands ~12s into wave 1
   shootTimer = 0;
   mutationTimer = 10;
   mutation = "steady";
@@ -735,6 +741,7 @@ function resetGame() {
   bossPendingMega = false;
   shake = 0;
   bankedThisRun = false;
+  runScoreBanked = 0;
   gameOver = false;
   paused = false;
   running = true;
@@ -782,6 +789,15 @@ function finishWaveBreak() {
   bossBanner = `Wave ${wave}`;
   bossBannerTimer = 1.7;
   player.invincible = Math.max(player.invincible, 0.85);
+  resetFormationsForWave();
+}
+
+// Stagger 3 formation clusters across the wave duration with a short
+// runway before the first one so the wave doesn't open under a fleet.
+function resetFormationsForWave() {
+  formationsThisWave = 0;
+  const slice = getWaveDuration() / (FORMATIONS_PER_WAVE + 1);
+  formationTimer = Math.max(4, slice * 0.85 + rand(-1, 1));
 }
 
 function getMaxHp() {
@@ -794,6 +810,19 @@ function getLaserTier() {
 
 function getBoosterTier() {
   return BOOSTER_TIERS[equipped.booster - 1];
+}
+
+// Credits are paid out per kill (1 credit per enemy defeated) inside
+// defeatEnemy(). Daily Challenge runs round bosses up to a small bonus.
+function awardKillCredit(amount) {
+  if (gameOver) return;
+  const multiplier = dailyChallenge ? 1.2 : 1;
+  const paid = Math.max(1, Math.round(amount * multiplier));
+  credits += paid;
+  runScoreBanked += paid;
+  creditsEl.textContent = credits;
+  // Persist the bank ASAP so a force-quit mid-run keeps your earnings.
+  try { localStorage.setItem("pixelVoidCredits", String(credits)); } catch (e) {}
 }
 
 function saveProgress() {
@@ -1872,6 +1901,89 @@ function hasBoss() {
   return enemies.some((enemy) => enemy.type === "boss");
 }
 
+// A formation drops a tight, synchronized cluster — same model, same speed,
+// no drift so they hold shape as they descend. Adds set-piece tension on
+// top of the normal random spawn flow.
+const FORMATION_PATTERNS = ["v", "line", "diamond", "arc"];
+
+function spawnFormation() {
+  if (width < 80) return;
+  const pattern = FORMATION_PATTERNS[Math.floor(Math.random() * FORMATION_PATTERNS.length)];
+  const pool = wave >= 5
+    ? ["shard", "wraith", "fang", "drone"]
+    : wave >= 3
+      ? ["shard", "wraith", "drone"]
+      : ["shard", "drone"];
+  const modelId = pool[Math.floor(Math.random() * pool.length)];
+  const model = ENEMY_MODELS.find((entry) => entry.id === modelId) || ENEMY_MODELS[0];
+  const baseSpeed = rand(70, 110) + wave * 9;
+  const baseFire = rand(2.6, 4.0);
+  // Pin centerX so the formation never starts clipped off-screen.
+  const margin = 64;
+  const centerX = rand(margin, width - margin);
+
+  let offsets = [];
+  if (pattern === "v") {
+    offsets = [
+      { dx: 0, dy: 0 },
+      { dx: -28, dy: -22 },
+      { dx: 28, dy: -22 },
+      { dx: -56, dy: -44 },
+      { dx: 56, dy: -44 }
+    ];
+  } else if (pattern === "line") {
+    const count = 5;
+    const gap = 36;
+    for (let i = 0; i < count; i++) {
+      offsets.push({ dx: (i - (count - 1) / 2) * gap, dy: 0 });
+    }
+  } else if (pattern === "diamond") {
+    offsets = [
+      { dx: 0, dy: 0 },
+      { dx: -34, dy: -28 },
+      { dx: 34, dy: -28 },
+      { dx: 0, dy: -56 }
+    ];
+  } else { // arc
+    const count = 5;
+    const radius = 72;
+    for (let i = 0; i < count; i++) {
+      const t = (i / (count - 1)) - 0.5; // -0.5 .. 0.5
+      offsets.push({ dx: t * radius * 2, dy: -Math.cos(t * Math.PI) * 26 });
+    }
+  }
+
+  bossBanner = "Incoming Formation";
+  bossBannerTimer = 1.4;
+
+  for (const off of offsets) {
+    let x = centerX + off.dx;
+    if (x < 26) x = 26;
+    if (x > width - 26) x = width - 26;
+    enemies.push({
+      type: "grunt",
+      modelId,
+      x,
+      y: -30 + off.dy,
+      w: modelId === "fang" ? 30 : modelId === "drone" ? 22 : 24,
+      h: modelId === "fang" ? 25 : modelId === "drone" ? 20 : 22,
+      hitW: modelId === "fang" ? 22 : modelId === "drone" ? 16 : 18,
+      hitH: modelId === "fang" ? 18 : modelId === "drone" ? 15 : 16,
+      hp: 1 + model.hp + Math.floor(wave / 6),
+      maxHp: 1 + model.hp + Math.floor(wave / 6),
+      v: baseSpeed,
+      drift: 0,           // hold formation - no random drift
+      fire: baseFire,
+      phase: rand(0, Math.PI * 2),
+      hitFlash: 0,
+      color: model.color,
+      accent: model.accent,
+      elite: false,
+      formation: true
+    });
+  }
+}
+
 function spawnBoss(mega = false) {
   const zone = getCurrentNebula();
   if (mega) {
@@ -2213,6 +2325,7 @@ function updateBullets(dt) {
 
 function updateEnemies(dt) {
   spawnTimer -= dt;
+  formationTimer -= dt;
   const spawnRate = Math.max(0.28, 1.05 - wave * 0.055);
   if (spawnTimer <= 0 && !hasBoss()) {
     spawnEnemy();
@@ -2220,6 +2333,20 @@ function updateEnemies(dt) {
   } else if (spawnTimer <= 0) {
     spawnTimer = 0.75;
     if (Math.random() < 0.45) spawnEnemy();
+  }
+  // Formation clusters — spaced out, only between bosses and only if there's
+  // budget left for this wave.
+  if (
+    formationTimer <= 0 &&
+    !hasBoss() &&
+    !bossPending &&
+    waveBreakTimer <= 0 &&
+    formationsThisWave < FORMATIONS_PER_WAVE
+  ) {
+    spawnFormation();
+    formationsThisWave += 1;
+    const slice = getWaveDuration() / (FORMATIONS_PER_WAVE + 1);
+    formationTimer = slice + rand(-1.5, 1.5);
   }
 
   for (let i = enemies.length - 1; i >= 0; i--) {
@@ -2423,6 +2550,7 @@ function defeatEnemy(e) {
   if (e.type === "boss") {
     score += e.mega ? 2200 + wave * 120 : 420 + wave * 45;
     runStats.bosses += 1;
+    awardKillCredit(e.mega ? 25 : 10);
     const bossGap = dailyChallenge ? 2 : 3;
     if (e.mega) {
       nextMegaBossWave += 25;
@@ -2445,6 +2573,7 @@ function defeatEnemy(e) {
   const model = ENEMY_MODELS.find((entry) => entry.id === e.modelId);
   score += e.elite ? 42 : model?.score || 18;
   runStats.kills += 1;
+  awardKillCredit(e.elite ? 2 : 1);
   burst(e.x, e.y, e.elite ? "#ff365f" : "#ffe066", e.elite ? 24 : 14);
   spawnPowerup(e.x, e.y);
 }
@@ -2546,9 +2675,14 @@ function endGame() {
   const finalScore = Math.floor(score);
   const finalWave = wave;
   best = Math.max(best, finalScore);
-  const earnedCredits = Math.max(1, Math.floor((finalScore / CREDIT_DIVISOR) * (dailyChallenge ? 1.2 : 1)));
+  // Credits were already paid out per kill via awardKillCredit().
+  // Guarantee a minimum of 1 credit for a run that ended without any kills.
+  if (runScoreBanked < 1) {
+    credits += 1;
+    runScoreBanked = 1;
+  }
+  const earnedCredits = Math.max(1, runScoreBanked);
   if (!bankedThisRun) {
-    credits += earnedCredits;
     addHallScore(finalScore, finalWave);
     if (dailyChallenge) dailyBest[dailyKey()] = Math.max(dailyBest[dailyKey()] || 0, finalScore);
     updateMissionProgress();
