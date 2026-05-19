@@ -321,11 +321,11 @@ const WEAPON_MODS = [
   { id: "magnet", name: "Salvage Magnet", cost: 5200, text: "Pulls glowing powerups toward the ship.", color: PALETTE.gold }
 ];
 const SHIP_SKINS = [
-  { id: "default", name: "Shadow Stock", cost: 0, primary: PALETTE.steel, trim: PALETTE.hot, glow: PALETTE.cool },
-  { id: "eclipse", name: "Eclipse Violet", cost: 1500, primary: "#8f5cff", trim: "#ff7adf", glow: "#d9fbff" },
-  { id: "solar", name: "Solar Warden", cost: 3200, primary: "#ffe066", trim: "#ff365f", glow: "#ff9d3c" },
-  { id: "aurora", name: "Aurora Ghost", cost: 6800, primary: "#48ff9b", trim: "#23d8ff", glow: "#f5f7ff" },
-  { id: "obsidian", name: "Obsidian Ace", cost: 11000, primary: "#34415f", trim: "#8f5cff", glow: "#ff365f" }
+  { id: "default", name: "Shadow Stock", cost: 0, primary: PALETTE.steel, trim: PALETTE.hot, glow: PALETTE.cool, canopy: PALETTE.blueWhite, engine: PALETTE.orange },
+  { id: "eclipse", name: "Eclipse Violet", cost: 1500, primary: "#8f5cff", trim: "#ff7adf", glow: "#d9fbff", canopy: "#f4d8ff", engine: "#8f5cff" },
+  { id: "solar", name: "Solar Warden", cost: 3200, primary: "#ffe066", trim: "#ff365f", glow: "#ff9d3c", canopy: "#fff5b5", engine: "#ff365f" },
+  { id: "aurora", name: "Aurora Ghost", cost: 6800, primary: "#48ff9b", trim: "#23d8ff", glow: "#f5f7ff", canopy: "#d9fbff", engine: "#23d8ff" },
+  { id: "obsidian", name: "Obsidian Ace", cost: 11000, primary: "#34415f", trim: "#8f5cff", glow: "#ff365f", canopy: "#d9fbff", engine: "#ff365f" }
 ];
 const ENEMY_MODELS = [
   { id: "shard", name: "Shard Imp", note: "Fast glass-wing striker.", hp: 0, score: 18, color: PALETTE.gold, accent: PALETTE.cool },
@@ -1568,18 +1568,7 @@ function drawSkinIcon(iconCtx, skin) {
   iconCtx.fillRect(0, 0, 54, 44);
   iconCtx.fillStyle = withAlpha(skin.glow, 0.18);
   iconCtx.fillRect(0, 0, 54, 44);
-  iconCtx.fillStyle = skin.glow;
-  iconCtx.fillRect(25, 4, 4, 7);
-  iconCtx.fillStyle = skin.primary;
-  iconCtx.fillRect(21, 11, 12, 18);
-  iconCtx.fillRect(13, 19, 9, 8);
-  iconCtx.fillRect(32, 19, 9, 8);
-  iconCtx.fillStyle = skin.trim;
-  iconCtx.fillRect(23, 29, 8, 7);
-  iconCtx.fillRect(10, 25, 6, 7);
-  iconCtx.fillRect(38, 25, 6, 7);
-  iconCtx.fillStyle = PALETTE.blueWhite;
-  iconCtx.fillRect(25, 13, 3, 6);
+  drawShip32(iconCtx, 27, 23, 0.58, { booster: 3, laser: 3, shield: 2 }, 2, skin);
 }
 
 function rand(min, max) {
@@ -1663,16 +1652,18 @@ function drawSprite(sprite, x, y, scale = 3, overrides = {}) {
   }
 }
 
-function drawShip32(targetCtx, x, y, scale, parts, flicker = 0) {
+function drawShip32(targetCtx, x, y, scale, parts, flicker = 0, skinOverride = null) {
   const booster = parts.booster;
   const laser = parts.laser;
   const shield = parts.shield;
-  const skin = getEquippedSkin();
+  const skin = skinOverride || getEquippedSkin();
   const laserColor = LASER_TIERS[laser - 1].color;
   const shieldColor = [PALETTE.coolDark, PALETTE.cool, PALETTE.violet, PALETTE.green, PALETTE.blueWhite][shield - 1];
   const hull = skin.primary;
   const trim = skin.trim;
   const glow = skin.glow;
+  const canopy = skin.canopy || PALETTE.blueWhite;
+  const engine = skin.engine || PALETTE.orange;
   const flame = 5 + booster * 1.8 + flicker * 0.45;
   const q = (dx, dy, w, h, color) => {
     targetCtx.fillStyle = color;
@@ -1684,47 +1675,38 @@ function drawShip32(targetCtx, x, y, scale, parts, flicker = 0) {
   q(-11 - shield, -9 - shield, 22 + shield * 2, 25 + shield * 2, shieldColor);
   targetCtx.restore();
 
-  drawEngineTrail(targetCtx, x, y, scale, booster, flame);
+  drawEngineTrail(targetCtx, x, y, scale, booster, flame, skin);
   if (booster >= 2) {
-    drawEngineTrail(targetCtx, x - 8 * scale, y - 1 * scale, scale * 0.62, booster - 1, flame * 0.72);
-    drawEngineTrail(targetCtx, x + 8 * scale, y - 1 * scale, scale * 0.62, booster - 1, flame * 0.72);
+    drawEngineTrail(targetCtx, x - 8 * scale, y - 1 * scale, scale * 0.62, booster - 1, flame * 0.72, skin);
+    drawEngineTrail(targetCtx, x + 8 * scale, y - 1 * scale, scale * 0.62, booster - 1, flame * 0.72, skin);
   }
   if (booster >= 4) {
-    drawEngineTrail(targetCtx, x - 16 * scale, y - 3 * scale, scale * 0.5, booster, flame * 0.55);
-    drawEngineTrail(targetCtx, x + 16 * scale, y - 3 * scale, scale * 0.5, booster, flame * 0.55);
+    drawEngineTrail(targetCtx, x - 16 * scale, y - 3 * scale, scale * 0.5, booster, flame * 0.55, skin);
+    drawEngineTrail(targetCtx, x + 16 * scale, y - 3 * scale, scale * 0.5, booster, flame * 0.55, skin);
   }
 
   q(-2, -25, 4, 7, laserColor);
-  q(-5, -20, 10, 5, PALETTE.blueWhite);
+  q(-5, -20, 10, 5, canopy);
   q(-7, -16, 14, 6, glow);
   q(-10, -11, 20, 7, PALETTE.ink);
   q(-13, -5, 26, 9, hull);
-  q(-9, -7, 18, 17, PALETTE.steelDark);
+  q(-9, -7, 18, 17, skin.id === "obsidian" ? "#111827" : PALETTE.steelDark);
   q(-6, -12, 12, 10, laserColor);
-  q(-3, -11, 5, 5, PALETTE.coolLight);
+  q(-3, -11, 5, 5, canopy);
   q(-1, -9, 2, 2, PALETTE.blueWhite);
   q(-7, 5, 14, 8, PALETTE.ink);
   q(-4, 10, 8, 8, trim);
   q(-1, 10, 2, 8, glow);
-  q(-12, -2, 24, 1, PALETTE.blueWhite);
+  q(-12, -2, 24, 1, canopy);
   q(-10, 2, 20, 1, PALETTE.shadow);
   q(-6, 6, 12, 1, PALETTE.steelLight);
 
-  q(-20, -4, 8, 20, trim);
-  q(-18, -2, 3, 13, glow);
-  q(12, -4, 8, 20, trim);
-  q(15, -2, 3, 13, glow);
-  q(-27, 1, 12, 9, booster >= 3 ? PALETTE.violet : PALETTE.gold);
-  q(15, 1, 12, 9, booster >= 3 ? PALETTE.violet : PALETTE.gold);
-  q(-30, 5, 10, 6, booster >= 4 ? PALETTE.green : PALETTE.goldDark);
-  q(20, 5, 10, 6, booster >= 4 ? PALETTE.green : PALETTE.goldDark);
-  q(-25, 2, 3, 6, PALETTE.goldLight);
-  q(22, 2, 3, 6, PALETTE.goldLight);
+  drawShipSkinFrame(targetCtx, q, skin, booster, laser, shield, { hull, trim, glow, canopy, engine });
   if (booster >= 5) {
     q(-35, -2, 7, 15, PALETTE.green);
     q(28, -2, 7, 15, PALETTE.green);
-    q(-33, 0, 2, 10, PALETTE.blueWhite);
-    q(31, 0, 2, 10, PALETTE.blueWhite);
+    q(-33, 0, 2, 10, canopy);
+    q(31, 0, 2, 10, canopy);
   }
 
   if (laser >= 2) {
@@ -1744,8 +1726,8 @@ function drawShip32(targetCtx, x, y, scale, parts, flicker = 0) {
   if (shield >= 2) {
     q(-12, -8, 4, 17, shieldColor);
     q(8, -8, 4, 17, shieldColor);
-    q(-11, -7, 1, 12, PALETTE.blueWhite);
-    q(10, -7, 1, 12, PALETTE.blueWhite);
+    q(-11, -7, 1, 12, canopy);
+    q(10, -7, 1, 12, canopy);
   }
   if (shield >= 4) {
     q(-7, -14, 14, 3, shieldColor);
@@ -1753,7 +1735,82 @@ function drawShip32(targetCtx, x, y, scale, parts, flicker = 0) {
   }
 }
 
-function drawEngineTrail(targetCtx, x, y, scale, booster, flame) {
+function drawShipSkinFrame(targetCtx, q, skin, booster, laser, shield, colors) {
+  const { trim, glow, canopy, engine } = colors;
+  const boostWing = booster >= 3 ? PALETTE.violet : PALETTE.gold;
+  const boostTip = booster >= 4 ? PALETTE.green : PALETTE.goldDark;
+
+  if (skin.id === "eclipse") {
+    q(-23, -8, 9, 24, PALETTE.shadow);
+    q(14, -8, 9, 24, PALETTE.shadow);
+    q(-28, -4, 11, 18, trim);
+    q(17, -4, 11, 18, trim);
+    q(-33, 2, 12, 6, glow);
+    q(21, 2, 12, 6, glow);
+    q(-22, -5, 3, 17, canopy);
+    q(19, -5, 3, 17, canopy);
+    q(-6, -18, 12, 3, trim);
+    q(-3, 13, 6, 7, engine);
+    return;
+  }
+
+  if (skin.id === "solar") {
+    q(-22, -6, 10, 24, trim);
+    q(12, -6, 10, 24, trim);
+    q(-34, 0, 18, 12, skin.primary);
+    q(16, 0, 18, 12, skin.primary);
+    q(-38, 5, 12, 7, PALETTE.goldLight);
+    q(26, 5, 12, 7, PALETTE.goldLight);
+    q(-30, -2, 4, 16, glow);
+    q(26, -2, 4, 16, glow);
+    q(-9, -22, 18, 3, PALETTE.goldLight);
+    q(-5, 14, 10, 6, engine);
+    return;
+  }
+
+  if (skin.id === "aurora") {
+    q(-18, -7, 7, 25, withAlpha(trim, 0.9));
+    q(11, -7, 7, 25, withAlpha(trim, 0.9));
+    q(-29, -3, 10, 19, glow);
+    q(19, -3, 10, 19, glow);
+    q(-35, 3, 9, 10, trim);
+    q(26, 3, 9, 10, trim);
+    q(-25, -1, 2, 16, PALETTE.blueWhite);
+    q(23, -1, 2, 16, PALETTE.blueWhite);
+    q(-12, 11, 24, 2, trim);
+    q(-2, 12, 4, 9, engine);
+    if (shield >= 2) q(-16, -16, 32, 2, glow);
+    return;
+  }
+
+  if (skin.id === "obsidian") {
+    q(-24, -9, 9, 25, PALETTE.shadow);
+    q(15, -9, 9, 25, PALETTE.shadow);
+    q(-31, -3, 14, 12, skin.primary);
+    q(17, -3, 14, 12, skin.primary);
+    q(-34, 6, 12, 6, trim);
+    q(22, 6, 12, 6, trim);
+    q(-25, 0, 3, 13, glow);
+    q(22, 0, 3, 13, glow);
+    q(-8, -18, 16, 2, trim);
+    q(-5, 13, 10, 5, engine);
+    if (laser >= 4) q(-14, -17, 28, 2, glow);
+    return;
+  }
+
+  q(-20, -4, 8, 20, trim);
+  q(-18, -2, 3, 13, glow);
+  q(12, -4, 8, 20, trim);
+  q(15, -2, 3, 13, glow);
+  q(-27, 1, 12, 9, boostWing);
+  q(15, 1, 12, 9, boostWing);
+  q(-30, 5, 10, 6, boostTip);
+  q(20, 5, 10, 6, boostTip);
+  q(-25, 2, 3, 6, PALETTE.goldLight);
+  q(22, 2, 3, 6, PALETTE.goldLight);
+}
+
+function drawEngineTrail(targetCtx, x, y, scale, booster, flame, skin = SHIP_SKINS[0]) {
   const q = (dx, dy, w, h, color, alpha = 1) => {
     targetCtx.save();
     targetCtx.globalAlpha = alpha;
@@ -1762,11 +1819,14 @@ function drawEngineTrail(targetCtx, x, y, scale, booster, flame) {
     targetCtx.restore();
   };
   const tail = flame + booster * 1.7;
-  q(-3, 13, 6, tail * 0.45, PALETTE.blueWhite, 0.75);
+  const core = skin.canopy || PALETTE.blueWhite;
+  const mid = skin.engine || PALETTE.gold;
+  const hot = skin.id === "solar" ? PALETTE.goldLight : skin.glow || PALETTE.hot;
+  q(-3, 13, 6, tail * 0.45, core, 0.75);
   q(-4, 15, 8, tail * 0.58, PALETTE.gold, 0.82);
-  q(-3, 18, 6, tail * 0.7, PALETTE.orange, 0.7);
-  q(-2, 22, 4, tail * 0.85, booster >= 4 ? PALETTE.violet : PALETTE.hot, 0.55);
-  q(-1, 27, 2, tail, booster >= 5 ? PALETTE.green : PALETTE.hotLight, 0.38);
+  q(-3, 18, 6, tail * 0.7, mid, 0.7);
+  q(-2, 22, 4, tail * 0.85, booster >= 4 ? skin.trim : PALETTE.hot, 0.55);
+  q(-1, 27, 2, tail, booster >= 5 ? PALETTE.green : hot, 0.38);
   for (let i = 0; i < 4; i++) {
     const side = i % 2 ? 1 : -1;
     q(side * (2 + i), 20 + i * 5, 1 + (i % 2), 2, i % 2 ? PALETTE.goldLight : PALETTE.coolLight, 0.45 - i * 0.07);

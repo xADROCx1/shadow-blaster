@@ -15,6 +15,30 @@ struct GameWebView: UIViewRepresentable {
         config.mediaTypesRequiringUserActionForPlayback = []
         config.suppressesIncrementalRendering = false
 
+        #if DEBUG
+        let debugSeedScript = """
+        (() => {
+          const testingCredits = 1000000;
+          const testingSkins = ["default", "eclipse", "solar", "aurora", "obsidian"];
+          const currentCredits = Number(localStorage.getItem("pixelVoidCredits") || "0");
+          if (currentCredits < testingCredits) {
+            localStorage.setItem("pixelVoidCredits", String(testingCredits));
+          }
+          localStorage.setItem("shadowBlasterSkins", JSON.stringify(testingSkins));
+          if (!testingSkins.includes(localStorage.getItem("shadowBlasterEquippedSkin") || "")) {
+            localStorage.setItem("shadowBlasterEquippedSkin", "default");
+          }
+          window.__shadowBlasterDebugSeed = { credits: testingCredits, skins: testingSkins, isSubscribed: true };
+          window.__SBSubscriptionUpdate && window.__SBSubscriptionUpdate(true);
+        })();
+        """
+        config.userContentController.addUserScript(WKUserScript(
+            source: debugSeedScript,
+            injectionTime: .atDocumentStart,
+            forMainFrameOnly: true
+        ))
+        #endif
+
         let webView = WKWebView(frame: .zero, configuration: config)
         webView.scrollView.isScrollEnabled = false
         webView.scrollView.bounces = false

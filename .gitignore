@@ -1,5 +1,6 @@
 # Xcode
 ios/build/
+ios/build-device/
 ios/DerivedData/
 ios/**/xcuserdata/
 ios/**/*.xcuserstate
@@ -20,6 +21,7 @@ ios/ShadowBlaster.xcodeproj/xcuserdata/
 # Claude Code session artifacts
 .claude/
 ios/build-release/
+ios/build-release-check/
 
 # Local config / secrets — DO NOT COMMIT API KEYS
 ios/ShadowBlaster/Secrets.swift

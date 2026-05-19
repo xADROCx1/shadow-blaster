@@ -10,7 +10,7 @@
   if (!isIOSHost) return;
 
   var FREE_WAVE_LIMIT = 3;
-  var isSubscribed = false;
+  var isSubscribed = !!(window.__shadowBlasterDebugSeed && window.__shadowBlasterDebugSeed.isSubscribed);
   var lastWaveSeen = 1;
   var paywallShown = false;
 

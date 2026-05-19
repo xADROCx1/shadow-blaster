@@ -14,7 +14,13 @@ final class SubscriptionManager: ObservableObject {
     static let entitlementID = "premium"
     // ─────────────────────────────────────────────────────────────
 
-    @Published private(set) var isSubscribed: Bool = false {
+    @Published private(set) var isSubscribed: Bool = {
+        #if DEBUG
+        return true
+        #else
+        return false
+        #endif
+    }() {
         didSet { notifySubscriptionChanged() }
     }
     @Published private(set) var offerings: Offerings?
@@ -27,9 +33,17 @@ final class SubscriptionManager: ObservableObject {
 
     func attach(webView: WKWebView) {
         self.webView = webView
+        #if DEBUG
+        self.isSubscribed = true
+        #endif
     }
 
     func refreshSubscription() async {
+        #if DEBUG
+        self.isSubscribed = true
+        return
+        #endif
+
         do {
             let info = try await Purchases.shared.customerInfo()
             self.isSubscribed = info.entitlements[Self.entitlementID]?.isActive == true
@@ -47,6 +61,11 @@ final class SubscriptionManager: ObservableObject {
     }
 
     func purchase(package: Package) async -> Bool {
+        #if DEBUG
+        self.isSubscribed = true
+        return true
+        #endif
+
         isLoading = true
         defer { isLoading = false }
         do {
@@ -60,6 +79,11 @@ final class SubscriptionManager: ObservableObject {
     }
 
     func restore() async -> Bool {
+        #if DEBUG
+        self.isSubscribed = true
+        return true
+        #endif
+
         isLoading = true
         defer { isLoading = false }
         do {
